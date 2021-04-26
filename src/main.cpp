@@ -5,7 +5,7 @@
 #include <Adafruit_MCP9808.h>
 #include <MD_REncoder.h>
 #include "config.h"
-#include "menu.h"
+#include "menuActions.h"
 #include "thermostatDisplay.h"
 #include "definitions.h"
 
@@ -63,19 +63,22 @@ MD_REncoder rotary = MD_REncoder(DT, CLK);                                      
 AdafruitIO_Feed *thermostatSetTemp = io.feed("thermostatSetTemp");
 AdafruitIO_Feed *thermostatTemp = io.feed("thermostatTemp");
 
-void (*mainMenuSelections[5])(int) = {setMenu, setMenu, setMenu, setMenu, setMenu};
+
+
+
+void (*mainMenuSelections[5])() = {updateCurrentMenu, updateCurrentMenu, updateCurrentMenu, updateCurrentMenu, updateCurrentMenu};
 Menu mainMenu =      Menu(new String[5]{"Set Fan", "Offset", "Tolerance", "Mode", "EXIT"}, mainMenuSelections, 5);
 
-void (*offsetMenuSelections[10])(int) = {setOffset, setOffset, setOffset, setOffset, setOffset, setOffset, setOffset, setOffset, setOffset, menuBack};
+void (*offsetMenuSelections[10])() = {setOffset, setOffset, setOffset, setOffset, setOffset, setOffset, setOffset, setOffset, setOffset, menuBack};
 Menu offsetMenu =    Menu(new String[10]{"-2.0", "-1.5", "-1.0", "-0.5", " 0", " 0.5", " 1.0", " 1.5", " 2.0", " BACK"}, offsetMenuSelections, 10);
 
-void (*toleranceMenuSelections[7])(int) = {setTolerance, setTolerance, setTolerance, setTolerance, setTolerance, setTolerance, menuBack};
+void (*toleranceMenuSelections[7])() = {setTolerance, setTolerance, setTolerance, setTolerance, setTolerance, setTolerance, menuBack};
 Menu toleranceMenu = Menu(new String[7]{"0.5", "1.0", "1.5", "2.0", "2.5", "3.0", "BACK"}, toleranceMenuSelections, 7);
 
-void (*modeMenuSelections[4])(int) = {setMode, setMode, setMode, menuBack};
+void (*modeMenuSelections[4])() = {setMode, setMode, setMode, menuBack};
 Menu modeMenu =      Menu(new String[4]{"Both", "Heat", "Cool", "BACK"}, modeMenuSelections, 4);
 
-void (*fanMenuSelections[10])(int) = {setFan, setFan, setFan, setFan, setFan, setFan, setFan, setFan, setFan, menuBack};
+void (*fanMenuSelections[10])() = {setFan, setFan, setFan, setFan, setFan, setFan, setFan, setFan, setFan, menuBack};
 Menu fanMenu  =      Menu(new String[10]{"OFF", "15 min ", "30 min", " 1 hour", " 2 hour", " 4 hour", " 8 hour", "12 hour", "24 hour", "BACK"}, fanMenuSelections, 10);
 
 Menu currentMenu = mainMenu;
@@ -426,6 +429,8 @@ void ICACHE_RAM_ATTR rotaryInterrupt()
   }
   lastInput = millis();
 }
+
+
 
 void setup() 
 {
