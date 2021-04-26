@@ -1,9 +1,8 @@
 # Open Source Smart Thermostat for $20
 A custom smart thermostat powered by the furnace and controlled by the cloud. Simple graphical user interface to view the temperature and change parameters.  
 
-## Photo
-Current Progress
-![In Progress](https://photos.google.com/share/AF1QipPBjyekizOIJp4altGRzJ4lt1XqApw0IATGKFjjwuD96_YvUNdgSCLNFRLoxHTqqQ?key=eGNrbU1JWkp2bVdja0ZYRDVDUTlWM0FMVWY5TVZ3)
+<br>
+
 ## List of Materials
 - ESP8266 (1) 
 - SSD1306 128X64 OLED screen(1)
@@ -12,6 +11,12 @@ Current Progress
 - MOC3063 Optoisolated Triac (3)
 - KBP307 Full Bridge Rectifier (1)
 - LM2596 Buck Converter (1)
+
+<br>
+
+## Photo
+Current Progress
+![In Progress](https://lh3.googleusercontent.com/pw/ACtC-3eyocwx30z5peZMYtMXriJruCee2kphhs2zh_X38m8JgyeFJozHd_2NtDIEYfnhJccdwXkoT1AhNB4yFoOkInb1ZinFoF4GjVXdBBodaTtx9QfN529DZdvzgLUOs2RtyIsXjQwsk97Vz5bbGmbW1kl6NA=w1275-h941-no?authuser=0)
 
 <br>
 
@@ -24,6 +29,7 @@ Current Progress
 - Custom GUI That Displays the Current and Set Temperature
 - Animated Icons for Heat, Cool, and Fan
 
+<br>
 
 ## Need To Do
 - Create React Based App With Encryption for Secure Viewing of Status and Control
