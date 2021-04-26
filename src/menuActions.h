@@ -5,7 +5,6 @@
 #include "menu.h"
 
 
-extern Adafruit_SSD1306 display;
 extern int state;
 extern float temp;
 extern int displayShiftX;
@@ -14,6 +13,7 @@ extern float tolerance;
 extern int mode;
 extern unsigned int fanMinutes;
 
+extern Adafruit_SSD1306 display;
 extern Menu currentMenu;
 extern Menu mainMenu;
 extern Menu fanMenu;
@@ -21,11 +21,15 @@ extern Menu offsetMenu;
 extern Menu toleranceMenu;
 extern Menu modeMenu;
 
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+// Menu Functions to be run on menu item click
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 
+
+// Change currentMenu based on the current selection
 void updateCurrentMenu()
 {
-  int curIndex = currentMenu.selectionIndex();
-  switch(curIndex)
+  switch(currentMenu.selectionIndex())
   {
     case 0:
       currentMenu = fanMenu;
@@ -44,15 +48,16 @@ void updateCurrentMenu()
       break;
   }
   Serial.println("Switched Menu");
-
 }
 
+
+// Go back a menu. Sets currentMenu to mainMenu
 void menuBack()
 {
   currentMenu = mainMenu;
 }
 
-
+// Sets offset based on current selection
 void setOffset()
 {
   offset = strtof(currentMenu.selection().c_str(), NULL);
@@ -61,6 +66,7 @@ void setOffset()
 }
 
 
+// Set tolerance based on current selection
 void setTolerance()
 {
   tolerance = strtof(currentMenu.selection().c_str(), NULL);
@@ -69,6 +75,7 @@ void setTolerance()
 }
 
 
+// Set mode based on current selection
 void setMode()
 {
   mode = currentMenu.selectionIndex();
@@ -76,6 +83,7 @@ void setMode()
 }
 
 
+// Set fan to run for a certain amount of time based on selection
 void setFan()
 {
   float sel = strtof(currentMenu.selection().c_str(), NULL);

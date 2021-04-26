@@ -54,18 +54,17 @@ volatile int count = 0;
 // START OF OBJECTS
 //+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);                     //Create SSD1306 Display Object
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);                     // Create SSD1306 Display Object
 
 Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();                                             // Create the MCP9808 temperature sensor object
 
-MD_REncoder rotary = MD_REncoder(DT, CLK);                                                    //Create rotary encoder object
+MD_REncoder rotary = MD_REncoder(DT, CLK);                                                    // Create rotary encoder object
 
-AdafruitIO_Feed *thermostatSetTemp = io.feed("thermostatSetTemp");
+AdafruitIO_Feed *thermostatSetTemp = io.feed("thermostatSetTemp");                            // IO feeds for MQTT
 AdafruitIO_Feed *thermostatTemp = io.feed("thermostatTemp");
 
 
-
-
+// Menu Items
 void (*mainMenuSelections[5])() = {updateCurrentMenu, updateCurrentMenu, updateCurrentMenu, updateCurrentMenu, updateCurrentMenu};
 Menu mainMenu =      Menu(new String[5]{"Set Fan", "Offset", "Tolerance", "Mode", "EXIT"}, mainMenuSelections, 5);
 
@@ -106,23 +105,22 @@ void thermostatFunctions();
 void handleThermostatSetTempMessage(AdafruitIO_Data *data);
 
 
+// Initialize connection to temperature sensor and set up circular buffer
 void setupTempsensor()
 {
-  //Initializes connection to temperature sensor and initializes temperature reading w/ circular buffer
-  //Check if it is connected properly
-  if (!tempsensor.begin(0x18)) {
-    Serial.println("Couldn't find MCP9808!");
+  if (!tempsensor.begin(0x18))                            // Check if MCP9808 connected properly
+  {
+    Serial.println("Unable to find MCP9808!");
     while (1);
   }  
   Serial.println("Found MCP9808!");
 
-  //Set resolution to 0.0625°C and turn on tempsensor
-  tempsensor.setResolution(3);
+  tempsensor.setResolution(3);                            // Set resolution to 0.0625°C and turn on tempsensor
   tempsensor.wake();
 
-  //Circular Buffer Stuff. Initialize buffer with all values
+  
   float t;
-  if(unit == 'F')
+  if(unit == 'F')                                         // Make initial reading
   {
     t = tempsensor.readTempF();
   }
@@ -131,31 +129,33 @@ void setupTempsensor()
     t = tempsensor.readTempC();
   }
 
-  for(int i = 0; i < circBuffSize; i++)
+  for(int i = 0; i < circBuffSize; i++)                   // Setup circular buffer with initial reading
   {
     tempBuffer[i] = t;
   }
 }
 
+// Setup function for OLED screen
 void setupOLED()
 {
-  //Need I say more?
-  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) 
+  {
     Serial.println(F("SSD1306 allocation failed"));
-    for(;;); // Don't proceed, loop forever
+    for(;;);                                                // Don't proceed, loop forever
   }
   display.clearDisplay();
 }
 
+
+// Connects to adafruit IO service
 void setupAdafruitIO()
 {
-  //Connects to adafruit IO service
   Serial.print("Connecting to Adafruit IO");
   io.connect();
   thermostatSetTemp->onMessage(handleThermostatSetTempMessage);
 
-  //ENSURE THAT YOU HAVE CALLED setupOLED() at this point 
-  //Displays initial connecting message
+  // ENSURE THAT YOU HAVE CALLED setupOLED() at this point 
+  // Displays initial connecting message
   display.clearDisplay();
   display.setCursor(0,0);
   display.setTextSize(2);
@@ -183,10 +183,9 @@ void setupAdafruitIO()
   thermostatSetTemp->get();
 }
 
+// Read current temperature and add to circular buffer. Calculate average temperature
 void updateTemp()
 {
-  //Read current temperature and add to circular buffer.
-  //Calculate average of circular buffer and update temperature
   float t;
   if (unit == 'F')
   {
@@ -207,6 +206,8 @@ void updateTemp()
   temp = total/circBuffSize;
 }
 
+
+// Tasks that need to occur with precise timings should be put here
 void taskScheduler()
 {
   static unsigned int lastSecond = 0;
@@ -215,19 +216,15 @@ void taskScheduler()
   static unsigned int lastDataUpload = 0;
   static unsigned int lastConnectionCheck = 0;
   
-  //Update Icon Frame every 250ms
+  // Update Icon Frame every 250ms
   if (millis()-lastFrameUpdate > 250)
   {
     lastFrameUpdate = millis();
-    displayIcons(true);
-  }
-  else
-  {
-    displayIcons(false);
+    advanceIconFrame();
   }
 
 
-  //Functions that need to run every second
+  // Functions that need to run every second
   if (seconds - lastSecond > 0)
   {
     updateTemp();
@@ -235,11 +232,11 @@ void taskScheduler()
   }
   
 
-  //io.run() is PAINFULLY slow to run. In order to maintain decent menu responsiveness it is only called every 2 seconds
-  //In preliminary testing this didn't cause any issues with receiving updates or sending values but not entirely sure.
+  // io.run() is PAINFULLY slow to run. In order to maintain decent menu responsiveness it is only called every 2 seconds
+  // In preliminary testing this didn't cause any issues with receiving updates or sending values but not entirely sure.
   if(seconds-lastConnectionCheck >2)
   {
-    if(io.run(0, true) == 1)                              //If connection not established set connection to false. Try to reestablish the connection
+    if(io.run(0, true) == 1)                              // If connection not established set connection to false. Try to reestablish the connection
     {
       connected = false;
       io.run();
@@ -269,9 +266,9 @@ void taskScheduler()
   // Functions that need to run every minute
   if (minutes - lastMinute > 0)
   {
-    displayShiftX = (displayShiftX+1)%15;       //Burn in Prevention. Shift home screen over by one pixel every minute
+    displayShiftX = (displayShiftX+1)%15;       // Burn in Prevention. Shift home screen over by one pixel every minute
     
-    if (fanMinutes > 0)                         //Update Fan Minutes
+    if (fanMinutes > 0)                         // Update Fan Minutes
     {
       fanMinutes--;
     }
@@ -281,32 +278,35 @@ void taskScheduler()
   
 }
 
+
+// Update the fake timer
 void updateTime()
 {
-  //Fake timer
-  if(minutes > 60)
-  {
-    minutes = 0;
-  }
-  if (seconds > 60)
-  {
-    seconds = 0;
-    minutes++;
-  }
   if(millis()-last > 1000)
   {
     last = millis();
     seconds++;
   }
+  if(seconds > 59)
+  {
+    seconds = 0;
+    minutes++;
+  }
+  if(minutes > 59)
+  {
+    minutes = 0;
+  }
 }
 
+
+// Functions to run on a button press
 void onButtonPress()
 {
-  if (state != 0)
+  if (state != 0)                       // If in a menu select current item
   {
     currentMenu.clickSelection();
   }
-  else
+  else                                  // Go into menu selection and display mainMenu
   {
     state++;
     currentMenu = mainMenu;
@@ -314,10 +314,11 @@ void onButtonPress()
   
 }
 
+
+// Functions to control the thermostat
 void thermostatFunctions()
 {
-  //ACTUAL THERMOSTAT CONTROLS
-  //CONTROLS RELAYS TO SWITCH FURNACE
+  // CONTROLS RELAYS TO SWITCH FURNACE
   if (fanMinutes > 0 && !fanON)
   {
     fanON = true;
@@ -326,7 +327,7 @@ void thermostatFunctions()
 
   if (!fanMinutes && fanON && !coolON && !heatON)
   {
-    //turn off fan if fanminutes = 0, fan is on, and both cool and heat are off
+    // turn off fan if fanminutes = 0, fan is on, and both cool and heat are off
     fanON = false;
     digitalWrite(FAN_PIN, HIGH);
   }
@@ -342,7 +343,7 @@ void thermostatFunctions()
   {
     heatON = false;
     digitalWrite(HEAT_PIN, HIGH);
-    //once heat has turned off continue to run fan for 5 min for extra efficiency;
+    // Once heat has turned off continue to run fan for 5 min for extra efficiency;
     if(fanMinutes < 5)
     {
       fanMinutes = 5;
@@ -360,7 +361,7 @@ void thermostatFunctions()
   {
     coolON = false;
     digitalWrite(COOL_PIN, HIGH);
-    //Once cool has turned off continue to run fan for 5 min for extra efficiency
+    // Once cool has turned off continue to run fan for 5 min for extra efficiency
     if(fanMinutes < 5)
     {
       fanMinutes = 5;
@@ -370,11 +371,13 @@ void thermostatFunctions()
 
 }
 
+
+//Handler for one IOT feed
 void handleThermostatSetTempMessage(AdafruitIO_Data *data) 
 {
   //Message handler for Set Thermostat Temp
-  //Don't update temp from internet if pending temperature update from rotary encoder
-  if(pendingTempUpdate)
+  
+  if(pendingTempUpdate)                   //Don't update temp from internet if pending temperature update from rotary encoder
   {
     return;
   }
@@ -383,8 +386,7 @@ void handleThermostatSetTempMessage(AdafruitIO_Data *data)
   Serial.println(value);
   int t = roundf(strtof(value.c_str(), NULL));
   
-  //If received value is within valid temperature range update target temperature
-  if (t >= MIN_TEMP && t <= MAX_TEMP)
+  if (t >= MIN_TEMP && t <= MAX_TEMP)     // If received value is within valid temperature range update target temperature
   {
     targetTemp = t;
     Serial.print("Setting thermostat to: ");
@@ -398,12 +400,13 @@ void handleThermostatSetTempMessage(AdafruitIO_Data *data)
 
 }
 
+
+// Interrupt for button press with debounce
 void ICACHE_RAM_ATTR buttonInterrupt()
 {
-  //Button press interrupt with debounce
   static unsigned long lastButton = 0;
   unsigned long now = millis();
-  if(now-lastButton > 300)
+  if(now-lastButton > 300)                  // Check for debounce
   {
     lastButton = now;
     Serial.println("Button Press Detected");
@@ -414,9 +417,10 @@ void ICACHE_RAM_ATTR buttonInterrupt()
   
 }
 
+
+// Interrupt for rotary encoder
 void ICACHE_RAM_ATTR rotaryInterrupt()
 {
-  //Very cool state based rotary interrupt
   unsigned int result = rotary.read();
   if (result == DIR_CW)
   {
@@ -431,12 +435,12 @@ void ICACHE_RAM_ATTR rotaryInterrupt()
 }
 
 
-
+// Setup function to initialize pins & setup peripheral devices
 void setup() 
 {
-  Serial.begin(9600);                      //Initiate serial connection
+  Serial.begin(9600);                      // Initiate serial connection
 
-  if(unit != 'F' && unit != 'C')           //Verify that the unit is correct
+  if(unit != 'F' && unit != 'C')           // Verify that the unit is correct
   {
     Serial.println("INVALID UNIT");
     for(;;);
@@ -468,6 +472,8 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(DT), rotaryInterrupt, CHANGE);
 }
 
+
+// Main Loop
 void loop() 
 {
   updateTime();                                             //Update the fake timer

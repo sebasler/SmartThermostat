@@ -7,6 +7,8 @@
 
 extern Adafruit_SSD1306 display;
 
+
+// Menu class
 class Menu
 {
   public:
@@ -38,11 +40,15 @@ class Menu
     void (*onClickFunctions[10])();
 };
 
+
+// Default constructor
 Menu::Menu()
 {
 
 }
 
+
+// Constructor for Menu with data. 
 Menu::Menu(String x[], void (*functions[])(), int l)
 {
   index = 0;
@@ -56,6 +62,8 @@ Menu::Menu(String x[], void (*functions[])(), int l)
 
 }
 
+
+// Move down one selection in menu
 void Menu::moveDown()
 {
   if(index < 3)
@@ -68,6 +76,8 @@ void Menu::moveDown()
   }
 }
 
+
+// Move up one selection in menu
 void Menu::moveUp()
 {
   if (index > 0)
@@ -80,6 +90,8 @@ void Menu::moveUp()
   }
 }
 
+
+// Displays the current menu items and selection
 void Menu::displayMenu()
 {
   display.clearDisplay();
@@ -99,6 +111,8 @@ void Menu::displayMenu()
   }  
 }
 
+
+// Executes the function pointer associated with the current selection
 void Menu::clickSelection()
 {
   (*onClickFunctions[index+start])();

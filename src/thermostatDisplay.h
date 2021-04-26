@@ -6,7 +6,7 @@
 #include "definitions.h"
 
 
-//All the Icons! I'm great at photoshop(apparently)
+// All the Icons! I'm great at photoshop(apparently)
 static const unsigned char PROGMEM fan_0[] =
 {
   0x01, 0xdc, 0x00, 0x02, 0x02, 0x00, 0x06, 0x01, 0x00, 0x04, 0x01, 0x00, 0x04, 0x01, 0x00, 0x04, 
@@ -83,35 +83,6 @@ static const unsigned char PROGMEM noInternet[] =
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-/*
-int state = 0;
-float temp = 0;
-int displayShiftX = 0;
-float offset = 0;
-float tolerance = 1;
-int mode = 0;
-
-float tempBuffer[circBuffSize];
-int writeIndex = 0;
-
-unsigned int fanMinutes = 0;
-unsigned int seconds = 0;
-unsigned int minutes = 0;
-unsigned long last = millis();
-
-int targetTemp = 76;
-bool heatON = false;
-bool coolON = false;
-bool fanON = false;
-bool pendingTempUpdate = false;
-bool connected = false;
-
-volatile bool buttonPress = false;
-volatile unsigned long lastInput = 0;
-volatile int count = 0;
-
-*/
-
 
 extern volatile int count;
 extern int targetTemp;
@@ -119,14 +90,12 @@ extern bool pendingTempUpdate;
 extern bool heatON;
 extern bool coolON;
 extern bool fanON;
-
-
-
-extern Adafruit_SSD1306 display;
 extern bool connected;
 extern int state;
 extern float temp;
 extern volatile unsigned long lastInput;
+
+extern Adafruit_SSD1306 display;
 extern Menu mainMenu;
 extern Menu offsetMenu;
 extern Menu toleranceMenu;
@@ -138,10 +107,11 @@ void displayCool(bool nextFrame);
 void displayHeat(bool nextFrame);
 void displayFan(bool nextFrame);
 void displayFanMinutes();
-void displayIcons(bool nextFrame);
+void displayIcons();
+void displayIcons();
 void displayHome();
 
-
+// Control the display & menu
 void showGUI()
 {
   if(state != 0 && millis()-lastInput > 10000)                  //If in a menu and no input has been detected for 10s go back to home screen
@@ -191,6 +161,8 @@ void showGUI()
   display.display();
 }
 
+
+// Displays cool icon. If nextFrame==true then advances one frame
 void displayCool(bool nextFrame)
 {
   //Displays cool icon. If animate==true then advance to next frame
@@ -205,6 +177,7 @@ void displayCool(bool nextFrame)
   if(nextFrame)
   {
     frame=(frame+1)%3;
+    return;
   }
 
   if(coolON)
@@ -228,6 +201,8 @@ void displayCool(bool nextFrame)
   }
 }
 
+
+// Displays heat icon. If nextFrame==true then advances one frame
 void displayHeat(bool nextFrame)
 {
   //Displays heat icon. If animate==true then advance to next frame
@@ -243,6 +218,7 @@ void displayHeat(bool nextFrame)
   if(nextFrame)
   {
     frame=(frame+1)%3;
+    return;
   }
 
   if(heatON)
@@ -260,21 +236,18 @@ void displayHeat(bool nextFrame)
   {
     display.drawBitmap(90+displayShiftX, 0, heat_1, ICON_WIDTH, ICON_HEIGHT, 1);
   }
-
-
-
-  
-
 }
 
+
+// Displays fan icon. If nextFrame==true then advances one frame
 void displayFan(bool nextFrame)
 {
-  //Displays fan icon. If animate==true then updates next frame
   static int frame = 0;
-  //Only increase frame if animate is true 
-  if(nextFrame)
+  
+  if(nextFrame)             //Only increase frame if nextFrame is true 
   {
     frame=(frame+1)%3;
+    return;
   }
   if(fanON)
   {
@@ -301,9 +274,10 @@ void displayFan(bool nextFrame)
    
 }
 
+
+// Shows number of minutes that fan will be on. Automatically formats the number of minutes into hours if large enough
 void displayFanMinutes()
 {
-  //Shows tiny icon representing how much longer the fan will be on
   display.setCursor(65+displayShiftX, 50);
   display.setTextSize(1);
   
@@ -311,7 +285,7 @@ void displayFanMinutes()
   {
     return;
   }
-  if(fanMinutes <= 60)
+  if(fanMinutes <= 60)                                //If fanMinutes < 60 display fanMinutes in minutes
   {
     if(fanMinutes <= 9)
     {
@@ -322,7 +296,7 @@ void displayFanMinutes()
     display.print('M');
 
   }
-  else
+  else                                                // If fanMinutes > 60 display fanMinutes in hours
   {
     display.setCursor(65+displayShiftX, 50);
     display.setTextSize(1);
@@ -339,17 +313,27 @@ void displayFanMinutes()
   } 
 }
 
-void displayIcons(bool nextFrame)
+
+// Advances all the Icon frames. Generally called every 250ms
+void advanceIconFrame()
 {
-  //Displays all the icons
-  displayCool(nextFrame);
-  displayHeat(nextFrame);
-  displayFan(nextFrame);
+  displayCool(true);
+  displayHeat(true);
+  displayFan(true);
 }
 
+// Displays all the icons
+void displayIcons()
+{
+  displayCool(false);
+  displayHeat(false);
+  displayFan(false);
+}
+
+
+// Display Home Screen elements: Current Temp & Set Temp
 void displayHome()
 {
-  //Display Home Screen elements: Current Temp & Set Temp
   display.clearDisplay();
   display.setCursor(displayShiftX,0);
   display.setTextSize(2);
@@ -364,12 +348,12 @@ void displayHome()
   display.print(temp,0);
   display.setTextSize(2);
   display.println(unit);
-  if(connected)
+  if(connected)                   // If connected display the Icons & fanMinutes
   {
-    displayIcons(false);
+    displayIcons();
     displayFanMinutes();
   }
-  else
+  else                            // If not connected show noInternet symbol
   {
     display.drawBitmap(80+displayShiftX, 35, noInternet, 30, 30, 1);
   }
