@@ -1,18 +1,6 @@
 # Open Source Smart Thermostat for $20
 A custom smart thermostat powered by the furnace and controlled by the cloud. Simple graphical user interface to view the temperature and change parameters.  
 
-<br>
-
-## List of Materials
-- ESP8266 (1) 
-- SSD1306 128X64 OLED screen(1)
-- MCP9808 Temperature Sensor (1)
-- KY-040 Rotary Encoder (1)
-- MOC3063 Optoisolated Triac (3)
-- KBP307 Full Bridge Rectifier (1)
-- LM2596 Buck Converter (1)
-
-<br>
 
 ## Photo
 Current Progress
@@ -21,6 +9,18 @@ Current Progress
 PCB
 
 ![In Progress](https://lh3.googleusercontent.com/pw/ACtC-3f55Xj-omHtm7GSHXyhCmm0ReDYRgTKU7ORYFQQ6YUGmH09xCPPbaPc-j3tkONYda5jrMZrXeCCnaVfx7PtF4-0tlC0qDPj_dXUOrqJdqToWoPwvDFj9Z1JuUE445fKw5TAWqnk5f7Fooh70pU5kst8ZA=w560-h670-no?authuser=0)
+
+<br>
+
+## List of Materials
+- ESP8266 (1) 
+- SSD1306 128X64 OLED screen(1)
+- MCP9808 Temperature Sensor (1)
+- KY-040 Rotary Encoder (1)
+- MOC3021 Optoisolated Triac (3)
+- KBP307 Full Bridge Rectifier (1)
+- LM2596 Buck Converter (1)
+
 <br>
 
 ## List of Features
