@@ -18,6 +18,9 @@ A custom smart thermostat powered by the furnace and controlled by the cloud. Si
 Current Progress
 ![In Progress](https://lh3.googleusercontent.com/pw/ACtC-3eyocwx30z5peZMYtMXriJruCee2kphhs2zh_X38m8JgyeFJozHd_2NtDIEYfnhJccdwXkoT1AhNB4yFoOkInb1ZinFoF4GjVXdBBodaTtx9QfN529DZdvzgLUOs2RtyIsXjQwsk97Vz5bbGmbW1kl6NA=w1275-h941-no?authuser=0)
 
+PCB
+
+![In Progress](https://lh3.googleusercontent.com/pw/ACtC-3f55Xj-omHtm7GSHXyhCmm0ReDYRgTKU7ORYFQQ6YUGmH09xCPPbaPc-j3tkONYda5jrMZrXeCCnaVfx7PtF4-0tlC0qDPj_dXUOrqJdqToWoPwvDFj9Z1JuUE445fKw5TAWqnk5f7Fooh70pU5kst8ZA=w560-h670-no?authuser=0)
 <br>
 
 ## List of Features
@@ -33,4 +36,4 @@ Current Progress
 
 ## Need To Do
 - Create React Based App With Encryption for Secure Viewing of Status and Control
-- Create Custom PCB and 3D Printed Enclosure To House Electronics
+- Create 3D Printed Enclosure To House Electronics
